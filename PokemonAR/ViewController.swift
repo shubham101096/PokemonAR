@@ -10,7 +10,7 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
-
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -21,6 +21,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
+        
+        sceneView.autoenablesDefaultLighting = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,7 +46,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
+    
     // MARK: - ARSCNViewDelegate
     
     // Override to create and configure nodes for anchors added to the view's session.
@@ -52,16 +54,31 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         let node = SCNNode()
         guard let imageAnchor = anchor as? ARImageAnchor else { return nil}
-
+        
         let refImage = imageAnchor.referenceImage
-
+        
         let imagePlane = SCNPlane(width: refImage.physicalSize.width, height: refImage.physicalSize.height)
-
+        
         let planeNode = SCNNode(geometry: imagePlane)
         planeNode.eulerAngles.x = -.pi/2
         planeNode.opacity = 0.5
         
         node.addChildNode(planeNode)
+        
+        if let imageName = refImage.name {
+            if imageName == "oddish-card" {
+                let oddishScene = SCNScene(named: "art.scnassets/oddish.scn")
+                guard let oddishNode = oddishScene?.rootNode.childNodes.first else { return nil }
+                node.addChildNode(oddishNode)
+            } else if imageName == "eevee-card" {
+                let eeveeScene = SCNScene(named: "art.scnassets/eevee.scn")
+                guard let eeveeNode = eeveeScene?.rootNode.childNodes.first else { return nil }
+                node.addChildNode(eeveeNode)
+            }
+            
+        }
+        
+        
         return node
     }
     
